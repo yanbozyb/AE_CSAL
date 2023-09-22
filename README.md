@@ -1,7 +1,7 @@
 # Artifact Evaluation for "Sonic: the Next-Gen Local Disks for the Cloud" ([EuroSys 2024 AE](https://sysartifacts.github.io/eurosys2024/))
 
 ## 1. Introduction
-This Artifact Evaluation is for "Sonic: the Next-Gen Local Disks for the Cloud" accepted by EuroSys 2024. The goal of this Artifact Evaluation is to help you 1) get project source code; 2) rebuild the project from scratch 3) reproduce the main experimental results of the paper. 
+This Artifact Evaluation is for "Sonic: the Next-Gen Local Disks for the Cloud" accepted by EuroSys 2024. The goal of this Artifact Evaluation is to help you 1) get project source code; 2) rebuild the project from scratch; 3) reproduce the main experimental results of the paper. 
 	
 If you have any questions, please contact us via email or HotCRP.
 
@@ -26,32 +26,68 @@ The figure describes the high level architecture of what we will build in this g
 #### Prepare SPDK
 1. Get the source code:
 
-```
+```bash
 git clone https://github.com/spdk/spdk --recursive
-cd spdk  
-```
-
-2. Switch to a formal release version (e.g., v23.05)
-```
+cd spdk
+# switch to a formal release version (e.g., v23.05)
 git checkout v23.05
 ```
 
-3. Compile SPDK
-```
+2. Compile SPDK
+```bash
+sudo scripts/pkgdep.sh # install prerequisites
 ./configure
 make
 ```
 
-4. Configure huge pages
-```
-sudo HUGEMEM=8192 ./setup.sh
+3. Configure huge pages
+```bash
+sudo HUGEMEM=16384 ./setup.sh # set up 16GB huge pages
 ```
 
 #### Build SPDK Application with CSAL
-1. Start spdk target  
-2. Construct SPDK block devices  
-3. Construct CSAL block device  
-4. Construct vhost-blk target  
-5. Assign CSAL block device to vhost-blk target  
-6. Launch a virtual machine using QEMU
+1. Start SPDK vhost target
+```bash
+# start vhost on CPU 0 and 1 (cpumask 0x3)
+sudo build/bin/vhost -S /var/tmp -m 0x3
+```
 
+2. Construct CSAL block device
+```bash
+# Before staring the following instructions, you should get
+# your NVMe devices' BDF number.
+
+# construct capacity device NVMe0 with BDF "0000:01:00.0"
+rpc.py bdev_nvme_attach_controller -b nvme0 -t PCIe -a 0000:01:00.0
+# construct cache device NVMe1 with BDF "0000:02:00.0"
+rpc.py bdev_nvme_attach_controller -b NVMe1 -t PCIe -a 0000:02:00.0
+# construct CSAL device FTL0 on top of NVMe0 and NVMe1
+rpc.py bdev_ftl_create -b FTL0 -d NVMe0n1 -c NVMe1n1
+```
+
+3. Use RAM disks (Optional)
+```bash
+# You can use RAM disks to constuct CSAL if you do not have required
+# hardware. However, RAM disks are only used for guiding how to build
+# CSAL, they can not reflect real behavior of CSAL.
+
+# construct capacity device Malloc0 with RAM disk
+scripts/rpc.py bdev_malloc_create -b Malloc0 64 512
+# construct cache device Malloc1 with RAM disk
+scripts/rpc.py bdev_malloc_create -b Malloc1 64 512
+# construct CSAL device FTL0 on top of Malloc0 and Malloc1
+rpc.py bdev_ftl_create -b FTL0 -d Malloc0 -c Malloc1
+``` 
+4. Construct vhost-blk controller with CSAL block device
+```bash
+# The following RPC will create a vhost-blk device exposing FTL0 device. 
+# The device will be accessible to QEMU via /var/tmp/vhost.1. All the I/O
+# polling will be pinned to the least occupied CPU core within given
+# cpumask - in this case always CPU 0. 
+rpc.py vhost_create_blk_controller --cpumask 0x1 vhost.1 FTL0
+```
+5. Launch a virtual machine using QEMU
+```bash
+qemu-system-x86 xxx
+```
+## 4. Start Evaluation (Results Reproduced)
