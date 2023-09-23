@@ -11,10 +11,10 @@ The source code of CSAL is accepted by SPDK community ([BSD 3-clause license](ht
 Note: any SPDK applications (e.g., vhost, nvmf_tgt, iscsi_tht) can use CSAL to construct a block-level cache for storage acceleration. In the following case, we will use vhost as an example that is the same as our EuroSys paper.
 
 ## 3. Kick-the-tire Instructions (10 minutes)
-### 3.1 Overview
+### Overview
 The figure describes the high level architecture of what we will build in this guide. First, we construct a CSAL block device (the red part in figure). Second, we start a vhost target and assign this CSAL block device to vhost (the yellow part in figure). Third, we launch a virtual machine (the blue part in figure) that communicates with the vhost target. Finally, you will get a virtual disk in the VM. The virtual disk is accelerated by CSAL.
 
-### 3.2 Prerequisites
+### Prerequisites
 #### Artifact Check-List
 - OS: Linux 3.10 or higher version.
 - Storage:
@@ -92,7 +92,7 @@ qemu-system-x86 xxx
 ```
 
 ## 4. Evaluation Instructions
-### 4.1 Environment
+### Environment
 To reproduce the same experimental results as ours, please use the following environment as far as possible.
 - OS: Linux CentOS Kernel 4.19
 - CPU: 2x Intel 8369B @ 2.90GHz
@@ -103,7 +103,7 @@ To reproduce the same experimental results as ours, please use the following env
 
 ***We prepared a Virtual Machine (VM) in our cloud platform. The VM is set up with a CSAL powered virtual disks and equipped all the required hardware. You can start reproducing the performance experiments (only for figures 10, 11, 12) directly without required hardware. Please contact us for VM login in information***
 
-### 4.2 Prerequisites (6+ hours)
+### Prerequisites (6+ hours)
 #### Preconditioning SSD (6+ hours)
 To make SSD enter stable state, we should precondition QLC SSDs by sequentially fill whole space twice and then randomly write the whole space once. The folder "precondition" in this Github repository includes configuration needed for FIO benchmark tool. You can use this configuration and follow the following instructions.
 ```bash
@@ -118,7 +118,7 @@ fdisk /dev/vdb
 xxxx
 ```
 
-### 4.3 Reproducing Figures 10, 11, 12 (3+ hours)
+### Reproducing Figures 10, 11, 12 (3+ hours)
 First, to reproduce **figure 10**, you could execute the following instructions:
 ```bash
 # for sequential workloads (i.e., Figure 10(a))
@@ -168,7 +168,7 @@ The output of each case should be as follows. The read and write results are sep
 fio results
 ```
 
-### 4.4 Reproducing Figures 13 (1+ hours)
+### Reproducing Figures 13 (1+ hours)
 To reproduce **figure 13**, we should run the same workloads as figure 11.
 ```bash
 # for 4KB skewed workloads (i.e., Figure 11(a))
@@ -185,7 +185,7 @@ We obtain the write amplification factor by dividing the total size of NAND writ
 sudo nvme identify
 ```
 
-### 4.5 Reproducing Figures 14 (30+ minutes)
+### Reproducing Figures 14 (30+ minutes)
 To reproduce **figure 14**, we should run 4k random writes workloads as follows.
 ```bash
 fio raw/uniform/fio_rnd_4k.job
