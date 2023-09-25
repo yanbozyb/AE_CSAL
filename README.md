@@ -75,19 +75,19 @@ scripts/rpc.py bdev_nvme_attach_controller -b nvme1 -t PCIe -a 0000:02:00.0
 scripts/rpc.py bdev_ftl_create -b FTL0 -d nvme0n1 -c nvme1n1
 ```
 
-3. Use RAM disks (Optional)
+3. Use RAM disks (Under Contruction, Please stay tuned for this part)
 ```bash
 # You can use RAM disks to constuct CSAL if you do not have required
 # hardware. However, RAM disks are only used for guiding how to build
 # CSAL, they can not reflect real behavior of CSAL.
 
 #make sure enough huge page is reserved for devices
-echo 16384 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+echo 32768 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
 
 # construct capacity device Malloc0 with RAM disk
-scripts/rpc.py bdev_malloc_create -b Malloc0 64 512
+scripts/rpc.py bdev_malloc_create -b Malloc0 20480 4096
 # construct cache device Malloc1 with RAM disk
-scripts/rpc.py bdev_malloc_create -b Malloc1 64 512
+scripts/rpc.py bdev_malloc_create -b Malloc1 5120 4096 -m 64
 # construct CSAL device FTL0 on top of Malloc0 and Malloc1
 scripts/rpc.py bdev_ftl_create -b FTL0 -d Malloc0 -c Malloc1
 ```
