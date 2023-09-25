@@ -70,9 +70,9 @@ sudo build/bin/vhost -S /var/tmp -m 0x3
 # construct capacity device NVMe0 with BDF "0000:01:00.0"
 scripts/rpc.py bdev_nvme_attach_controller -b nvme0 -t PCIe -a 0000:01:00.0
 # construct cache device NVMe1 with BDF "0000:02:00.0"
-scripts/rpc.py bdev_nvme_attach_controller -b NVMe1 -t PCIe -a 0000:02:00.0
+scripts/rpc.py bdev_nvme_attach_controller -b nvme1 -t PCIe -a 0000:02:00.0
 # construct CSAL device FTL0 on top of NVMe0 and NVMe1
-scripts/rpc.py bdev_ftl_create -b FTL0 -d NVMe0n1 -c NVMe1n1
+scripts/rpc.py bdev_ftl_create -b FTL0 -d nvme0n1 -c nvme1n1
 ```
 
 3. Use RAM disks (Optional)
