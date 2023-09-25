@@ -38,19 +38,19 @@ sudo scripts/pkgdep.sh # install prerequisites
 make
 ```
 
-3. Configure huge pages
+3. Set cache device and capacity device sector size 4KB with nvme-cli, for example:
+```bash
+nvme format /dev/nvme4n1  -b 4096 --force
+```
+
+4. Set cache device VSS enabled with nvme-cli, for example:
+```bash
+nvme format /dev/nvme3 --namespace-id=1 --lbaf=4 --force --reset
+```
+
+5. Configure huge pages
 ```bash
 sudo HUGEMEM=16384 ./setup.sh # set up 16GB huge pages
-```
-
-4. Set cache device and capacity device sector size 4KB with nvme-cli
-```bash
-for example: nvme format /dev/nvme4n1  -b 4096 --force
-```
-
-5. Set cache device VSS enabled with nvme-cli
-```bash
-for example: nvme format /dev/nvme3 --namespace-id=1 --lbaf=4 --force --reset
 ```
 
 #### Build SPDK Application with CSAL
