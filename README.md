@@ -100,8 +100,11 @@ scripts/rpc.py vhost_create_blk_controller --cpumask 0x1 vhost.1 FTL0
 
 5. Launch a virtual machine using QEMU
 ```bash
-qemu-system-x86 xxx
+qemu-system-x86_64 -m 8192 -smp 64 -cpu host -enable-kvm -hda /mnt/nvme6n1/fedora37.qcow2 -netdev user,id=net0,hostfwd=tcp::32001-:22 -device e1000,netdev=net0 -display none -vga std -daemonize -pidfile /var/run/qemu_0 -object memory-backend-file,id=mem,size=8G,mem-path=/dev/hugepages,share=on -numa node,memdev=mem -chardev socket,id=char0,path=/mnt/nvme6n1/wayne/csal/vhost.1 -device vhost-user-blk-pci,num-queues=16,id=blk0,chardev=char0
 ```
+notes:
+	please change -hda qemu img to your path
+ 	please change path to the actual vhost path from vhost app log
 
 ## 4. Evaluation Instructions
 ### Environment
