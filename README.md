@@ -50,7 +50,7 @@ nvme format /dev/nvme3 --namespace-id=1 --lbaf=4 --force --reset
 
 5. Configure huge pages
 ```bash
-sudo HUGEMEM=16384 ./setup.sh # set up 16GB huge pages
+sudo HUGEMEM=16384 ./scripts/setup.sh # set up 16GB huge pages
 ```
 
 #### Build SPDK Application with CSAL
