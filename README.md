@@ -81,6 +81,9 @@ scripts/rpc.py bdev_ftl_create -b FTL0 -d nvme0n1 -c nvme1n1
 # hardware. However, RAM disks are only used for guiding how to build
 # CSAL, they can not reflect real behavior of CSAL.
 
+#make sure enough huge page is reserved for devices
+echo 16384 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+
 # construct capacity device Malloc0 with RAM disk
 scripts/rpc.py bdev_malloc_create -b Malloc0 64 512
 # construct cache device Malloc1 with RAM disk
