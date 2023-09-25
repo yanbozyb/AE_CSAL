@@ -29,6 +29,8 @@ git clone https://github.com/spdk/spdk --recursive
 cd spdk
 # switch to a formal release version (e.g., v23.05)
 git checkout v23.05
+# get correct DPDK version
+git submodule update --init
 ```
 
 2. Compile SPDK
