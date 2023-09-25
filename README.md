@@ -68,11 +68,11 @@ sudo build/bin/vhost -S /var/tmp -m 0x3
 # your NVMe devices' BDF number.
 
 # construct capacity device NVMe0 with BDF "0000:01:00.0"
-rpc.py bdev_nvme_attach_controller -b nvme0 -t PCIe -a 0000:01:00.0
+scripts/rpc.py bdev_nvme_attach_controller -b nvme0 -t PCIe -a 0000:01:00.0
 # construct cache device NVMe1 with BDF "0000:02:00.0"
-rpc.py bdev_nvme_attach_controller -b NVMe1 -t PCIe -a 0000:02:00.0
+scripts/rpc.py bdev_nvme_attach_controller -b NVMe1 -t PCIe -a 0000:02:00.0
 # construct CSAL device FTL0 on top of NVMe0 and NVMe1
-rpc.py bdev_ftl_create -b FTL0 -d NVMe0n1 -c NVMe1n1
+scripts/rpc.py bdev_ftl_create -b FTL0 -d NVMe0n1 -c NVMe1n1
 ```
 
 3. Use RAM disks (Optional)
@@ -86,7 +86,7 @@ scripts/rpc.py bdev_malloc_create -b Malloc0 64 512
 # construct cache device Malloc1 with RAM disk
 scripts/rpc.py bdev_malloc_create -b Malloc1 64 512
 # construct CSAL device FTL0 on top of Malloc0 and Malloc1
-rpc.py bdev_ftl_create -b FTL0 -d Malloc0 -c Malloc1
+scripts/rpc.py bdev_ftl_create -b FTL0 -d Malloc0 -c Malloc1
 ```
 
 4. Construct vhost-blk controller with CSAL block device
@@ -95,7 +95,7 @@ rpc.py bdev_ftl_create -b FTL0 -d Malloc0 -c Malloc1
 # The device will be accessible to QEMU via /var/tmp/vhost.1. All the I/O
 # polling will be pinned to the least occupied CPU core within given
 # cpumask - in this case always CPU 0. 
-rpc.py vhost_create_blk_controller --cpumask 0x1 vhost.1 FTL0
+scripts/rpc.py vhost_create_blk_controller --cpumask 0x1 vhost.1 FTL0
 ```
 
 5. Launch a virtual machine using QEMU
