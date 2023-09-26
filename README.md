@@ -27,8 +27,8 @@ The figure describes the high level architecture of what we will build in this g
 ```bash
 git clone https://github.com/spdk/spdk --recursive
 cd spdk
-# switch to a formal release version (e.g., v23.05)
-git checkout v23.05
+# switch to a formal release version (e.g., v22.09)
+git checkout v22.09
 # get correct DPDK version
 git submodule update --init
 ```
@@ -48,6 +48,20 @@ nvme format /dev/nvme4n1  -b 4096 --force
 4. Set cache device VSS enabled with nvme-cli, for example:
 ```bash
 nvme format /dev/nvme3 --namespace-id=1 --lbaf=4 --force --reset
+```
+if do not have fast NVMe device that support VSS well, you can use CSAL VSS SW emulation to run performance testing and study, this does not promise power safety and crash consistency. Solidigm already have solution to support non VSS NVMe as cache device. please stay tuned.
+to build CSAL with VSS SW emulation support, please modify below makefile
+```bash
+vim lib/ftl/Makefile
+#find below defination SPDK_FTL_VSS_EMU
+ifdef SPDK_FTL_VSS_EMU
+CFLAGS += -DSPDK_FTL_VSS_EMU
+endif
+
+#force enable SPDK_FTL_VSS_EMU macro by comment out the ifdef as below
+#ifdef SPDK_FTL_VSS_EMU
+CFLAGS += -DSPDK_FTL_VSS_EMU
+#endif
 ```
 
 5. Configure huge pages
@@ -104,6 +118,8 @@ scripts/rpc.py vhost_create_blk_controller --cpumask 0x1 vhost.1 FTL0
 5. Launch a virtual machine using QEMU
 ```bash
 qemu-system-x86_64 -m 8192 -smp 64 -cpu host -enable-kvm -hda /mnt/nvme6n1/fedora37.qcow2 -netdev user,id=net0,hostfwd=tcp::32001-:22 -device e1000,netdev=net0 -display none -vga std -daemonize -pidfile /var/run/qemu_0 -object memory-backend-file,id=mem,size=8G,mem-path=/dev/hugepages,share=on -numa node,memdev=mem -chardev socket,id=char0,path=/mnt/nvme6n1/wayne/csal/vhost.1 -device vhost-user-blk-pci,num-queues=16,id=blk0,chardev=char0
+#connect your qemu VM via
+ssh root@localhost -p 32001
 ```
 notes:
    - please change -hda qemu img to your path
