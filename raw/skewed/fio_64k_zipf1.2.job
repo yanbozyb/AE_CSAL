@@ -14,32 +14,32 @@ random_distribution=zipf:1.2
 
 [job1]
 name=job1
-filename=/dev/nvme3n1p0
+filename=/dev/nvme3n1p1
 
 [job2]
 name=job2
-filename=/dev/nvme3n1p1
+filename=/dev/nvme3n1p2
 
 [job3]
 name=job3
-filename=/dev/nvme3n1p2
+filename=/dev/nvme3n1p3
 
 [job4]
 name=job4
-filename=/dev/nvme3n1p3
+filename=/dev/nvme3n1p4
 
 [job5]
 name=job5
-filename=/dev/nvme3n1p4
+filename=/dev/nvme3n1p5
 
 [job6]
 name=job6
-filename=/dev/nvme3n1p5
+filename=/dev/nvme3n1p6
 
 [job7]
 name=job7
-filename=/dev/nvme3n1p6
+filename=/dev/nvme3n1p7
 
 [job8]
 name=job8
-filename=/dev/nvme3n1p7
+filename=/dev/nvme3n1p8

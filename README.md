@@ -137,8 +137,8 @@ To reproduce the same experimental results as ours, please use the following env
 
 Before starting the following instructions, you have to log into the VM first. ***We prepared a Virtual Machine (VM) in our cloud platform. The VM is set up with a CSAL powered virtual disks and equipped all the required hardware. You can start reproducing the performance experiments (only for figures 10, 11, 12) directly without required hardware. Please contact us for VM login in information***
 
-### Prerequisites (15-16 hours)
-#### Preconditioning SSD (15-16 hours)
+### Prerequisites (16+ hours)
+#### Preconditioning SSD (16+ hours)
 To make SSD enter stable state, we should precondition QLC SSDs by sequentially fill whole space twice and then randomly write the whole space once. The folder "precondition" in this Github repository includes configuration needed for FIO benchmark tool. You can use this configuration and follow the following instructions.
 ```bash
 yum install fio -y
@@ -148,15 +148,15 @@ sh precondition/start.sh # it will take much long time to precondition SSD.
 ```
 
 #### Preparing Partitions
-After preconditioning, we should prepare partitions. In our experiments, we construct 8 VMs, each is assigned a partition of CSAL device. To simplify experiments in Artifact Evaluation, we encourage users to split the virtual disk into multiple partitions and then launch multiple FIO jobs to generate workloads on each partition. In this case, each job can be considered as a tenant (i.e., VM). The following instructions split the whole virtual disk into 8 partitions using *fdisk*.
+After preconditioning, we should prepare partitions. In our experiments, we construct 8 VMs, each is assigned a partition of CSAL device. To simplify experiments in Artifact Evaluation, we encourage users to split the virtual disk into multiple partitions (e.g., 8 partitions)and then launch multiple FIO jobs to generate workloads on each partition. In this case, each job can be considered as a tenant (i.e., VM). The following script splits "/dev/nvme3n1" into 8 partitions.
 ```bash
-fdisk /dev/vdb
-xxxx
+sh autopartition.sh
 ```
 
 ### Reproducing Figures 10, 11, 12 (3+ hours)
 First, to reproduce **figure 10**, you could execute the following instructions:
 ```bash
+sh precon
 # for sequential workloads (i.e., Figure 10(a))
 fio raw/uniform/fio_seq_4k.job
 fio raw/uniform/fio_seq_8k.job

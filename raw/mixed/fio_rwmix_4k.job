@@ -13,46 +13,46 @@ runtime=180s
 rw=randwrite
 bs=4k
 name=job1
-filename=/dev/nvme3n1p0
+filename=/dev/nvme3n1p1
 
 [job2]
 rw=randwrite
 bs=4k
 name=job2
-filename=/dev/nvme3n1p1
+filename=/dev/nvme3n1p2
 
 [job3]
 rw=randwrite
 bs=4k
 name=job3
-filename=/dev/nvme3n1p2
+filename=/dev/nvme3n1p3
 
 [job4]
 rw=randwrite
 bs=4k
 name=job4
-filename=/dev/nvme3n1p3
+filename=/dev/nvme3n1p4
 
 [job5]
 rw=randwrite
 bs=4k
 name=job5
-filename=/dev/nvme3n1p4
+filename=/dev/nvme3n1p5
 
 [job6]
 rw=randwrite
 bs=4k
 name=job6
-filename=/dev/nvme3n1p5
+filename=/dev/nvme3n1p6
 
 [job7]
 rw=randwrite
 bs=4k
 name=job7
-filename=/dev/nvme3n1p6
+filename=/dev/nvme3n1p7
 
 [job8]
 rw=randread
 bs=64k
 name=job8
-filename=/dev/nvme3n1p7
+filename=/dev/nvme3n1p8
