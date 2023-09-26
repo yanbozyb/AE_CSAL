@@ -139,16 +139,18 @@ Before starting the following instructions, you have to log into the VM first. *
 
 ### Prerequisites (16+ hours)
 #### Preconditioning SSD (16+ hours)
-To make SSD enter stable state, we should precondition QLC SSDs by sequentially fill whole space twice and then randomly write the whole space once. The folder "precondition" in this Github repository includes configuration needed for FIO benchmark tool. You can use this configuration and follow the following instructions.
+Before starting evaluation, we should precondition the disks in order to make them enter "stable state".
+The folder "precondition" in our Artifact Evaluation repository includes a script to precondition disks. You can use this configuration and follow the following instructions.
 ```bash
 yum install fio -y
 git clone https://github.com/yanbozyb/AE_CSAL.git
 cd AE_CSAL
-sh precondition/start.sh # it will take much long time to precondition SSD.
+sh precondition/start.sh
 ```
+This will take much long time to precondition virtual disks by sequentially writing whole space twice followed by randomly writes to whole space area.
 
 #### Preparing Partitions
-After preconditioning, we should prepare partitions. In our experiments, we construct 8 VMs, each is assigned a partition of CSAL device. To simplify experiments in Artifact Evaluation, we encourage users to split the virtual disk into multiple partitions (e.g., 8 partitions)and then launch multiple FIO jobs to generate workloads on each partition. In this case, each job can be considered as a tenant (i.e., VM). The following script splits "/dev/nvme3n1" into 8 partitions.
+After preconditioning, we should prepare partitions. In our experiments, we construct 8 VMs, each is assigned a partition of CSAL device. To simplify experiments in Artifact Evaluation, we encourage users to split the virtual disk into multiple partitions (e.g., 8 partitions) and then launch multiple FIO jobs to generate workloads on each partition. In this case, each job can be considered as a tenant (i.e., VM). The following script splits "/dev/nvme3n1" into 8 partitions (i.e., nvme3n1p1, nvme3n1p2, nvme3n1p3, ...).
 ```bash
 sh autopartition.sh
 ```
@@ -156,22 +158,7 @@ sh autopartition.sh
 ### Reproducing Figures 10, 11, 12 (3+ hours)
 First, to reproduce **figure 10**, you could execute the following instructions:
 ```bash
-sh precon
-# for sequential workloads (i.e., Figure 10(a))
-fio raw/uniform/fio_seq_4k.job
-fio raw/uniform/fio_seq_8k.job
-fio raw/uniform/fio_seq_16k.job
-fio raw/uniform/fio_seq_32k.job
-fio raw/uniform/fio_seq_64k.job
-fio raw/uniform/fio_seq_128k.job
-
-# for random workloads (i.e., Figure 10(b))
-fio raw/uniform/fio_rnd_4k.job
-fio raw/uniform/fio_rnd_8k.job
-fio raw/uniform/fio_rnd_16k.job
-fio raw/uniform/fio_rnd_32k.job
-fio raw/uniform/fio_rnd_64k.job
-fio raw/uniform/fio_rnd_128k.job
+sh precondition/start.sh
 ```
 
 The output of each case should be as follows. You can find write throughput is xxx MB/s (all partitions included) in this example.
