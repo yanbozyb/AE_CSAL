@@ -10,123 +10,140 @@ The source code of CSAL is accepted by SPDK community ([BSD 3-clause license](ht
 
 Note: any SPDK applications (e.g., vhost, nvmf_tgt, iscsi_tht) can use CSAL to construct a block-level cache for storage acceleration. In the following case, we will use vhost as an example that is the same as our EuroSys paper.
 
-## 3. Kick-the-tire Instructions (10 minutes)
+## 3. Kick-the-tire Instructions (10+ minutes)
 ### Overview
 The figure describes the high level architecture of what we will build in this guide. First, we construct a CSAL block device (the red part in figure). Second, we start a vhost target and assign this CSAL block device to vhost (the yellow part in figure). Third, we launch a virtual machine (the blue part in figure) that communicates with the vhost target. Finally, you will get a virtual disk in the VM. The virtual disk is accelerated by CSAL.
 
 ### Prerequisites
-#### Artifact Check-List
-- OS: Linux 3.10 or higher version.
+#### Hardware Requirement
 - Storage:
-  - NVMe QLC SSD (for capacity layer).
-  - NVMe Optane SSD or SLC SSD (for cache layer).
+  - NVMe QLC SSD
+  - NVMe Optane SSD or SLC SSD with VSS capability (4K + 64B format)
 - Memory: at least 30GB DRAM.
+
+ QLC SSD will be used as capacity device (denoted as /dev/nvme0n1 in the following instructions) while Optane/SSD SSD (denoted as /dev/nvme1n1 in the following instructions) will be used as cache device.
   
 #### Prepare SPDK
 1. Get the source code:
-```bash
-git clone https://github.com/spdk/spdk --recursive
-cd spdk
-# switch to a formal release version (e.g., v22.09)
-git checkout v22.09
-# get correct DPDK version
-git submodule update --init
-```
+   ```bash
+   git clone https://github.com/spdk/spdk --recursive
+   cd spdk
+   # switch to a formal release version (e.g., v22.09)
+   git checkout v22.09
+   # get correct DPDK version
+   git submodule update --init
+   ```
 
 2. Compile SPDK
-```bash
-sudo scripts/pkgdep.sh # install prerequisites
-./configure
-make
-```
+   ```bash
+   sudo scripts/pkgdep.sh # install prerequisites
+   ./configure
+   make
+   ```
 
-3. Set cache device and capacity device sector size 4KB with nvme-cli, for example:
-```bash
-nvme format /dev/nvme4n1  -b 4096 --force
-```
+3. Set SSD (for both cache device and capacity device) sector size to 4KB with nvme-cli, for example:
+   ```bash
+   # install nvme cli
+   yum install nvme-cli -y
+   nvme format /dev/nvme0n1 -b 4096 --force
+   nvme format /dev/nvme1n1 -b 4096 --force
+   ```
 
-4. Set cache device VSS enabled with nvme-cli, for example:
-```bash
-nvme format /dev/nvme3 --namespace-id=1 --lbaf=4 --force --reset
-```
-if do not have fast NVMe device that support VSS well, you can use CSAL VSS SW emulation to run performance testing and study, this does not promise power safety and crash consistency. Solidigm already have solution to support non VSS NVMe as cache device. please stay tuned.
-to build CSAL with VSS SW emulation support, please modify below makefile
-```bash
-vim lib/ftl/Makefile
-#find below defination SPDK_FTL_VSS_EMU
-ifdef SPDK_FTL_VSS_EMU
-CFLAGS += -DSPDK_FTL_VSS_EMU
-endif
+4. Enable VSS (4KB + 64B) for cache device as follows:
+   ```bash
+   nvme format /dev/nvme2 --namespace-id=1 --lbaf=4 --force --reset
+   ```
+   The SSD will be formatted into the layout with 4KB data sector followed by 64B metadata area. 
 
-#force enable SPDK_FTL_VSS_EMU macro by comment out the ifdef as below
-#ifdef SPDK_FTL_VSS_EMU
-CFLAGS += -DSPDK_FTL_VSS_EMU
-#endif
-```
+5. VSS emulation (optional for Non-VSS SSD).
+   
+   If you do not have fast NVMe device that supports VSS, you can use CSAL VSS software emulation to run performance testing and study. Note emulation does not promise power safety and crash consistency. We already have solution to support non-VSS NVMe as cache device. Please stay tuned.
 
-5. Configure huge pages
-```bash
-sudo HUGEMEM=16384 ./scripts/setup.sh # set up 16GB huge pages
-```
+   To build CSAL with VSS software emulation support, please modify the below Makefile.
+   ```bash
+   vim lib/ftl/Makefile
+   # find below defination SPDK_FTL_VSS_EMU
+   ifdef SPDK_FTL_VSS_EMU
+   CFLAGS += -DSPDK_FTL_VSS_EMU
+   endif
+   ```
+   Enable SPDK_FTL_VSS_EMU macro by commenting out the ifdef as below:
+   ```bash
+   #ifdef SPDK_FTL_VSS_EMU
+   CFLAGS += -DSPDK_FTL_VSS_EMU
+   #endif
+   ```
+
+6. Configure huge pages
+   ```bash
+   sudo HUGEMEM=16384 ./scripts/setup.sh # set up 16GB huge pages
+   ```
 
 #### Build SPDK Application with CSAL
 1. Start SPDK vhost target
-```bash
-# start vhost on CPU 0 and 1 (cpumask 0x3)
-sudo build/bin/vhost -S /var/tmp -m 0x3
-```
+   ```bash
+   # start vhost on CPU 0 and 1 (cpumask 0x3)
+   sudo build/bin/vhost -S /var/tmp -m 0x3
+   ```
 
 2. Construct CSAL block device
-```bash
-# Before staring the following instructions, you should get
-# your NVMe devices' BDF number.
+   ```bash
+   # Before staring the following instructions, you should get
+   # your NVMe devices' BDF number.
 
-# construct capacity device NVMe0 with BDF "0000:01:00.0"
-scripts/rpc.py bdev_nvme_attach_controller -b nvme0 -t PCIe -a 0000:01:00.0
-# construct cache device NVMe1 with BDF "0000:02:00.0"
-scripts/rpc.py bdev_nvme_attach_controller -b nvme1 -t PCIe -a 0000:02:00.0
-# construct CSAL device FTL0 on top of NVMe0 and NVMe1
-scripts/rpc.py bdev_ftl_create -b FTL0 -d nvme0n1 -c nvme1n1
-```
+   # construct capacity device NVMe0 with BDF "0000:01:00.0"
+   scripts/rpc.py bdev_nvme_attach_controller -b nvme0 -t PCIe -a 0000:01:00.0
+   # construct cache device NVMe1 with BDF "0000:02:00.0"
+   scripts/rpc.py bdev_nvme_attach_controller -b nvme1 -t PCIe -a 0000:02:00.0
+   # construct CSAL device FTL0 on top of NVMe0 and NVMe1
+   scripts/rpc.py bdev_ftl_create -b FTL0 -d nvme0n1 -c nvme1n1
+   ```
 
 3. Use RAM disks (Under Contruction, Please stay tuned for this part)
-```bash
-# You can use RAM disks to constuct CSAL if you do not have required
-# hardware. However, RAM disks are only used for guiding how to build
-# CSAL, they can not reflect real behavior of CSAL.
+   ```bash
+   # You can use RAM disks to constuct CSAL if you do not have required
+   # hardware. However, RAM disks are only used for guiding how to build
+   # CSAL, they can not reflect real behavior of CSAL.
 
-#make sure enough huge page is reserved for devices
-echo 32768 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+   #make sure enough huge page is reserved for devices
+   echo 32768 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
 
-# construct capacity device Malloc0 with RAM disk
-scripts/rpc.py bdev_malloc_create -b Malloc0 20480 4096
-# construct cache device Malloc1 with RAM disk
-scripts/rpc.py bdev_malloc_create -b Malloc1 5120 4096 -m 64
-# construct CSAL device FTL0 on top of Malloc0 and Malloc1
-scripts/rpc.py bdev_ftl_create -b FTL0 -d Malloc0 -c Malloc1
-```
+   # construct capacity device Malloc0 with RAM disk
+   scripts/rpc.py bdev_malloc_create -b Malloc0 20480 4096
+   # construct cache device Malloc1 with RAM disk
+   scripts/rpc.py bdev_malloc_create -b Malloc1 5120 4096 -m 64
+   # construct CSAL device FTL0 on top of Malloc0 and Malloc1
+   scripts/rpc.py bdev_ftl_create -b FTL0 -d Malloc0 -c Malloc1
+   ```
 
 4. Construct vhost-blk controller with CSAL block device
-```bash
-# The following RPC will create a vhost-blk device exposing FTL0 device. 
-# The device will be accessible to QEMU via /var/tmp/vhost.1. All the I/O
-# polling will be pinned to the least occupied CPU core within given
-# cpumask - in this case always CPU 0. 
-scripts/rpc.py vhost_create_blk_controller --cpumask 0x1 vhost.1 FTL0
-```
+   ```bash
+   # The following RPC will create a vhost-blk device exposing FTL0 device. 
+   # The device will be accessible to QEMU via /var/tmp/vhost.1. All the I/O
+   # polling will be pinned to the least occupied CPU core within given
+   # cpumask - in this case always CPU 0. 
+   scripts/rpc.py vhost_create_blk_controller --cpumask 0x1 vhost.1 FTL0
+   ```
 
 5. Launch a virtual machine using QEMU
-```bash
-qemu-system-x86_64 -m 8192 -smp 64 -cpu host -enable-kvm -hda /mnt/nvme6n1/fedora37.qcow2 -netdev user,id=net0,hostfwd=tcp::32001-:22 -device e1000,netdev=net0 -display none -vga std -daemonize -pidfile /var/run/qemu_0 -object memory-backend-file,id=mem,size=8G,mem-path=/dev/hugepages,share=on -numa node,memdev=mem -chardev socket,id=char0,path=/mnt/nvme6n1/wayne/csal/vhost.1 -device vhost-user-blk-pci,num-queues=16,id=blk0,chardev=char0
-#connect your qemu VM via
-ssh root@localhost -p 32001
-```
-notes:
-   - please change -hda qemu img to your path
-   - please change path to the actual vhost path from vhost app log
+   ```bash
+   qemu-system-x86_64 -m 8192 -smp 64 -cpu host -enable-kvm \
+   -hda /mnt/nvme6n1/fedora37.qcow2 \ 
+   -netdev user,id=net0,hostfwd=tcp::32001-:22 \
+   -device e1000,netdev=net0 -display none -vga std \
+   -daemonize -pidfile /var/run/qemu_0 \
+   -object memory-backend-file,id=mem,size=8G,mem-path=/dev/hugepages,share=on \
+   -numa node,memdev=mem \ 
+   -chardev socket,id=char0,path=/mnt/nvme6n1/wayne/csal/vhost.1 \
+   -device vhost-user-blk-pci,num-queues=16,id=blk0,chardev=char0 \
+   ```
+   notes:
+      - log into your VM via "ssh root@localhost -p 32001"
+      - please change -hda qemu img to your path
+      - please change path to the actual vhost path from vhost app log
 
-## 4. Evaluation Instructions
-### Environment
+## 4. Evaluation Instructions (18+ hours)
+### Experimental Environment
 To reproduce the same experimental results as ours, please use the following environment as far as possible.
 - OS: Linux CentOS Kernel 4.19
 - CPU: 2x Intel 8369B @ 2.90GHz
@@ -134,13 +151,16 @@ To reproduce the same experimental results as ours, please use the following env
 - NVMe SSDs:
   - 1x Intel P5800X 800GB NVMe SSD (for cache)
   - 1x Intel/Solidigm P5316 15.35TB NVMe SSD
+- VM:
+  - OS: Linux CentOS Kernel 3.10.0
+  - CPU: 56 vCPU cores
+  - Memory: 64GB
 
-Before starting the following instructions, you have to log into the VM first. ***We prepared a Virtual Machine (VM) in our cloud platform. The VM is set up with a CSAL powered virtual disks and equipped all the required hardware. You can start reproducing the performance experiments (only for figures 10, 11, 12) directly without required hardware. Please contact us for VM login in information***
+***We prepared a Virtual Machine (VM) in our cloud platform. The VM is set up with a CSAL powered virtual disks and equipped all the required hardware. You can start reproducing the performance experiments (only for figures 10, 11, 12) directly without required hardware. Please contact us for VM login in information***
 
 ### Prerequisites (16+ hours)
 #### Preconditioning SSD (16+ hours)
-Before starting evaluation, we should precondition the disks in order to make them enter "stable state".
-The folder "precondition" in our Artifact Evaluation repository includes a script to precondition disks. You can use this configuration and follow the following instructions.
+To execute the following instructions, you have to log into the VM first. Before starting evaluation, we should precondition the disks in order to make them enter "stable state". The folder "precondition" in our Artifact Evaluation repository includes a script to precondition disks. You can use this configuration and follow the following instructions.
 ```bash
 yum install fio -y
 git clone https://github.com/yanbozyb/AE_CSAL.git
@@ -165,8 +185,8 @@ size=1598G
 ...
 ```
 
-### Reproducing Figures 10, 11, 12 (2+ hours)
-First, to reproduce **figure 10**, you could execute the following instructions:
+### Reproducing Figures 10, 11, 12 (90+ minutes)
+First, to reproduce **figure 10**, you could execute the following instructions (60+ minutes):
 ```bash
 sh raw/uniform/start.sh
 ```
@@ -213,19 +233,19 @@ Disk stats (read/write):
   nvme3n1: ios=81/171393678, merge=0/0, ticks=0/40309547, in_queue=40309547, util=100.00%
 ```
 
-Second, to reproduce **figure 11**, you could execute the following instructions:
+Second, to reproduce **figure 11**, you could execute the following instructions (20+ minutes):
 ```bash
 sh raw/skewed/start.sh
 ```
 The results will be generated in "raw/skewed/results" folder.
 
-Third, to reproduce **figure 12**, you could execute the following instructions:
+Third, to reproduce **figure 12**, you could execute the following instructions (10+ minutes):
 ```bash
 sh /raw/mixed/start.sh
 ```
 The results will be generated in "raw/mixed/results" folder. The read and write results are separate in the outputs of each case.
 
-### Reproducing Figures 13 (1+ hours)
+### Reproducing Figures 13 (20+ minues)
 To reproduce **figure 13**, we should run the same workloads as figure 11. For measuring write amplification factor (WAF), we should run cases one by one.
 ```bash
 # for 4KB skewed workloads (i.e., Figure 11(a))
@@ -242,7 +262,7 @@ nvme smart-log /dev/nvme0n1
 ```
 In the output, you can find current data read and written on NAND media from "data_units_read" and "data_units_written" fields.
 
-### Reproducing Figures 14 (30+ minutes)
+### Reproducing Figures 14 (5+ minutes)
 To reproduce **figure 14**, we should run 4k random writes workloads as follows.
 ```bash
 fio raw/uniform/fio_rnd_4k.job
