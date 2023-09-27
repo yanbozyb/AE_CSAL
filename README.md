@@ -1,7 +1,9 @@
 # Artifact Evaluation for "Sonic: the Next-Gen Local Disks for the Cloud" ([EuroSys 2024 AE](https://sysartifacts.github.io/eurosys2024/))
 
 ## 1. Introduction
-This Artifact Evaluation pertains to "Sonic: the Next-Gen Local Disks for the Cloud" accepted by EuroSys 2024. The goal of this Artifact Evaluation is to help you 1) get project source code; 2) rebuild the project from scratch; 3) reproduce the main experimental results of the paper. 
+This Artifact Evaluation pertains to "Sonic: the Next-Gen Local Disks for the Cloud" accepted by EuroSys 2024. The goal of this Artifact Evaluation is to help you 1) get project source code; 2) rebuild the project from scratch; 3) reproduce the main experimental results of the paper.
+
+Note: for double-blind policy, we anonymize the name of our local disks product as SONIC in the paper. In camera-ready version, we will change it to CSAL so in the following context, we will use CSAL instead of SONIC.
 	
 If you have any questions, please contact us via HotCRP or email (yanbo.zyb@outlook.com).
 
