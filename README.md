@@ -185,7 +185,7 @@ The figure describes the high level architecture of what we will build in this g
 
 4. Launch a virtual machine using QEMU
    ```bash
-   qemu-system-x86_64 -m 8192 -smp 64 -cpu host -enable-kvm \
+   qemu-system-x86_64 -m 16384 -smp 64 -cpu host -enable-kvm \
    -hda /path/to/centos.qcow2 \ 
    -netdev user,id=net0,hostfwd=tcp::32001-:22 \
    -device e1000,netdev=net0 -display none -vga std \
@@ -332,6 +332,6 @@ yum install python3 -y
 scripts/spdk_iostat -d -m -i 1 -t 3000
 ```
 ## 5. Others
-Now we are working on implementing a new approach without relying on VSS capability for cache layer. In later release, you can construct CSAL on devices with VSS.
+Now we have implemented a new approach without relying on VSS capability for cache layer. In later release, you can construct CSAL on devices with VSS.
 
-For any other information, please contact Yanbo Zhou (yanbo.zyb@outlook.com).
+For any other help, please contact Yanbo Zhou (yanbo.zyb@outlook.com).
