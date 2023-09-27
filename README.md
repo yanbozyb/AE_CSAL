@@ -150,19 +150,19 @@ sh precondition/start.sh
 This will take much long time to precondition virtual disks by sequentially writing whole space twice followed by randomly writes to whole space area.
 
 #### Preparing Partitions
-After preconditioning, we should prepare partitions. In our experiments, we construct 8 VMs, each is assigned a partition of CSAL device. To simplify experiments in Artifact Evaluation, we encourage users to split the virtual disk into multiple partitions (e.g., 8 partitions) and then launch multiple FIO jobs to generate workloads on each partition. In this case, each job can be considered as a tenant (i.e., VM). The following script splits "/dev/nvme3n1" into 8 partitions.
+After preconditioning, we should prepare partitions. In our paper's experiments, we construct 8 VMs, each is assigned a partition of CSAL device. To simplify experiments in Artifact Evaluation, we encourage users to split the virtual disk into multiple partitions and then launch multiple FIO jobs to generate workloads on each partition. In this case, each job can be considered as a tenant (i.e., VM). In the following instructions, we split whole disk into 8 partitions by specifying offset and size for each job in FIO configurations. The example is shown as follows:
 ```bash
-sh autopartition.sh
+[job1]
+name=job1
+offset=0G
+size=1598G
 
-          Start          End    Size  Type            Name
- 1          256    390625023    1.5T  Microsoft basic primary
- 2    390625024    781250047    1.5T  Microsoft basic primary
- 3    781250048   1171875071    1.5T  Microsoft basic primary
- 4   1171875072   1562500095    1.5T  Microsoft basic primary
- 5   1562500096   1953125119    1.5T  Microsoft basic primary
- 6   1953125120   2343749887    1.5T  Microsoft basic primary
- 7   2343749888   2734374911    1.5T  Microsoft basic primary
- 8   2734374912   3124999935    1.5T  Microsoft basic primary
+[job2]
+name=job2
+offset=1598G
+size=1598G
+
+...
 ```
 
 ### Reproducing Figures 10, 11, 12 (2+ hours)
@@ -170,38 +170,63 @@ First, to reproduce **figure 10**, you could execute the following instructions:
 ```bash
 sh raw/uniform/start.sh
 ```
-The results will be generated in "raw/uniform/results_rnd_workloads" and "raw/uniform/results_rnd_workloads" folders. The output of each case should be as follows. You can find write throughput is xxx MB/s (all partitions included) in this example.
+The results will be generated in "raw/uniform/results_rnd_workloads" and "raw/uniform/results_seq_workloads" folders. The output of each case should be as follows. You can find write throughput is 2228MB/s (all partitions included) in this example.
 ```bash
-fio results
+job1: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=128
+job2: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=128
+job3: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=128
+job4: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=128
+job5: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=128
+job6: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=128
+job7: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=128
+job8: (g=0): rw=write, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=libaio, iodepth=128
+fio-3.7
+Starting 8 processes
+
+job1: (groupid=0, jobs=8): err= 0: pid=26050: Thu Sep 28 00:32:22 2023
+  write: IOPS=544k, BW=2125MiB/s (2228MB/s)(374GiB/180230msec)
+    slat (nsec): min=1425, max=511061k, avg=13955.15, stdev=1180249.41
+    clat (usec): min=22, max=514231, avg=1868.26, stdev=13315.29
+     lat (usec): min=213, max=514254, avg=1882.30, stdev=13367.67
+    clat percentiles (usec):
+     |  1.00th=[   322],  5.00th=[   474], 10.00th=[   603], 20.00th=[   914],
+     | 30.00th=[  1090], 40.00th=[  1221], 50.00th=[  1336], 60.00th=[  1467],
+     | 70.00th=[  1631], 80.00th=[  1893], 90.00th=[  2376], 95.00th=[  2868],
+     | 99.00th=[  4015], 99.50th=[  4621], 99.90th=[ 56886], 99.95th=[476054],
+     | 99.99th=[501220]
+   bw (  KiB/s): min= 4136, max=1094408, per=12.52%, avg=272298.64, stdev=137941.19, samples=2880
+   iops        : min= 1034, max=273602, avg=68074.65, stdev=34485.30, samples=2880
+  lat (usec)   : 50=0.01%, 250=0.01%, 500=7.17%, 750=6.37%, 1000=10.66%
+  lat (msec)   : 2=58.75%, 4=16.03%, 10=0.78%, 20=0.14%, 50=0.01%
+  lat (msec)   : 100=0.01%, 250=0.02%, 500=0.06%, 750=0.01%
+  cpu          : usr=4.61%, sys=23.97%, ctx=10747928, majf=0, minf=44
+  IO depths    : 1=0.1%, 2=0.1%, 4=0.1%, 8=0.1%, 16=0.1%, 32=0.1%, >=64=174.8%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.1%
+     issued rwts: total=0,98032582,0,0 short=0,0,0,0 dropped=0,0,0,0
+     latency   : target=0, window=0, percentile=100.00%, depth=128
+
+Run status group 0 (all jobs):
+  WRITE: bw=2125MiB/s (2228MB/s), 2125MiB/s-2125MiB/s (2228MB/s-2228MB/s), io=374GiB (402GB), run=180230-180230msec
+
+Disk stats (read/write):
+  nvme3n1: ios=81/171393678, merge=0/0, ticks=0/40309547, in_queue=40309547, util=100.00%
 ```
 
 Second, to reproduce **figure 11**, you could execute the following instructions:
 ```bash
-# for 4KB skewed workloads (i.e., Figure 11(a))
-fio raw/skewed/fio_4k_zipf0.8.job
-fio raw/skewed/fio_4k_zipf1.2.job
-
-# for 64KB skewed workloads (i.e., Figure 11(b))
-fio raw/skewed/fio_64k_zipf0.8.job
-fio raw/skewed/fio_64k_zipf1.2.job
+sh raw/skewed/start.sh
 ```
+The results will be generated in "raw/skewed/results" folder.
 
 Third, to reproduce **figure 12**, you could execute the following instructions:
 ```bash
-# for 64KB miaxed workloads (i.e., Figure 12(a))
-fio raw/mixed/fio_rwmix_64k.job
-
-# for 4KB miaxed workloads (i.e., Figure 12(b))
-fio raw/mixed/fio_rwmix_4k.job
+sh /raw/mixed/start.sh
 ```
-
-The output of each case should be as follows. The read and write results are separate. You can find write throughput is xxx MB/s (all partitions included) and read throughput is xxx MB/s in this example.
-```bash
-fio results
-```
+The results will be generated in "raw/mixed/results" folder. The read and write results are separate in the outputs of each case.
 
 ### Reproducing Figures 13 (1+ hours)
-To reproduce **figure 13**, we should run the same workloads as figure 11.
+To reproduce **figure 13**, we should run the same workloads as figure 11. For measuring write amplification factor (WAF), we should run cases one by one.
 ```bash
 # for 4KB skewed workloads (i.e., Figure 11(a))
 fio raw/skewed/fio_4k_zipf0.8.job
@@ -211,18 +236,20 @@ fio raw/skewed/fio_4k_zipf1.2.job
 fio raw/skewed/fio_64k_zipf0.8.job
 fio raw/skewed/fio_64k_zipf1.2.job
 ```
-
-We obtain the write amplification factor by dividing the total size of NAND writes by the total logical writes. Before and after each test, you can use nvme cli tool to get the current NAND writes of QLC drive. FIO will report total logical writes when finishing the tests. The example that shows how to use nvme cli tool to get NAND writes is as follows:
+We calculate write amplification factor (WAF) by dividing the total size of NAND writes by the total logical writes. Before and after each test, you can use nvme cli tool to get the current NAND writes of QLC drive (**in HOST instead of VM!!**). FIO will report total logical writes when finishing the tests. The example that shows how to use nvme cli tool to get NAND writes is as follows:
 ```bash
-sudo nvme identify
+nvme smart-log /dev/nvme0n1
 ```
+In the output, you can find current data read and written on NAND media from "data_units_read" and "data_units_written" fields.
 
 ### Reproducing Figures 14 (30+ minutes)
 To reproduce **figure 14**, we should run 4k random writes workloads as follows.
 ```bash
 fio raw/uniform/fio_rnd_4k.job
 ```
-During the test, spdk iostat tool can be used to get CASL backend traffic.
+During the test, spdk iostat tool can be used to get CASL backend traffic for each block device (**in HOST instead of VM!!**).
 ```bash
-scripts/spdk_iostat
+cd ~/path/to/spdk
+yum install python3 -y
+scripts/spdk_iostat -d -m -i 1 -t 3000
 ```

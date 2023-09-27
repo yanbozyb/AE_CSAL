@@ -6,7 +6,7 @@ echo "seq 4k DONE" >> $MAIN_PATH/raw/uniform/status
 
 echo "start seq 8k" >> $MAIN_PATH/raw/uniform/status
 fio $MAIN_PATH/raw/uniform/fio_seq_8k.job > $MAIN_PATH/raw/uniform/results_seq_workloads/seq_8k.result
-echo "seq 8k DONE" >> $MAIN_PATH/raw/uniform/results_seq_workloads
+echo "seq 8k DONE" >> $MAIN_PATH/raw/uniform/status
 
 echo "start seq 16k" >> $MAIN_PATH/raw/uniform/status
 fio $MAIN_PATH/raw/uniform/fio_seq_16k.job > $MAIN_PATH/raw/uniform/results_seq_workloads/seq_16k.result
@@ -32,7 +32,7 @@ echo "rnd 4k DONE" >> $MAIN_PATH/raw/uniform/status
 
 echo "start rnd 8k" >> $MAIN_PATH/raw/uniform/status
 fio $MAIN_PATH/raw/uniform/fio_rnd_8k.job > $MAIN_PATH/raw/uniform/results_rnd_workloads/rnd_8k.result
-echo "rnd 8k DONE" >> $MAIN_PATH/raw/uniform/results_seq_workloads
+echo "rnd 8k DONE" >> $MAIN_PATH/raw/uniform/status
 
 echo "start rnd 16k" >> $MAIN_PATH/raw/uniform/status
 fio $MAIN_PATH/raw/uniform/fio_rnd_16k.job > $MAIN_PATH/raw/uniform/results_rnd_workloads/rnd_16k.result
