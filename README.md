@@ -8,7 +8,7 @@ If you have any questions, please contact us via email or HotCRP.
 ## 2. Access Source Code
 The source code of CSAL is accepted by SPDK community ([BSD 3-clause license](https://opensource.org/license/bsd-3-clause/)) and merged into SPDK main branch at [Github](https://github.com/spdk/spdk). In SPDK, CSAL is implemented as a [Flash Translation Layer](https://spdk.io/doc/ftl.html) module. You can find CSAL implementation under the folder "[spdk/lib/ftl](https://github.com/spdk/spdk/tree/master/lib/ftl)" as follows:
 ```
-ftl
+lib/ftl
 ├── ftl_band.c
 ├── ftl_band.h
 ├── ftl_band_ops.c
@@ -348,3 +348,7 @@ cd ~/path/to/spdk
 yum install python3 -y
 scripts/spdk_iostat -d -m -i 1 -t 3000
 ```
+## 5. Others
+Now we are working on implementing a new approach without relying on VSS capability for cache layer. In later release, you can construct CSAL on devices with VSS.
+
+For any other information, please contact Yanbo Zhou (yanbo.zyb@outlook.com).
