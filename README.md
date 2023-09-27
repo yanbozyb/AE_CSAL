@@ -1,12 +1,12 @@
 # Artifact Evaluation for "Sonic: the Next-Gen Local Disks for the Cloud" ([EuroSys 2024 AE](https://sysartifacts.github.io/eurosys2024/))
 
 ## 1. Introduction
-This Artifact Evaluation is for "Sonic: the Next-Gen Local Disks for the Cloud" accepted by EuroSys 2024. The goal of this Artifact Evaluation is to help you 1) get project source code; 2) rebuild the project from scratch; 3) reproduce the main experimental results of the paper. 
+This Artifact Evaluation pertains to "Sonic: the Next-Gen Local Disks for the Cloud" accepted by EuroSys 2024. The goal of this Artifact Evaluation is to help you 1) get project source code; 2) rebuild the project from scratch; 3) reproduce the main experimental results of the paper. 
 	
-If you have any questions, please contact us via email or HotCRP.
+If you have any questions, please contact us via HotCRP or email (yanbo.zyb@outlook.com).
 
 ## 2. Access Source Code
-The source code of CSAL is accepted by SPDK community ([BSD 3-clause license](https://opensource.org/license/bsd-3-clause/)) and merged into SPDK main branch at [Github](https://github.com/spdk/spdk). In SPDK, CSAL is implemented as a [Flash Translation Layer](https://spdk.io/doc/ftl.html) module. You can find CSAL implementation under the folder "[spdk/lib/ftl](https://github.com/spdk/spdk/tree/master/lib/ftl)" as follows:
+The source code of CSAL has been accepted by SPDK community ([BSD 3-clause license](https://opensource.org/license/bsd-3-clause/)) and merged into SPDK main branch at [Github](https://github.com/spdk/spdk). Within SPDK, CSAL is implemented as a module of [Flash Translation Layer](https://spdk.io/doc/ftl.html). You can find CSAL implementation under the folder "[spdk/lib/ftl](https://github.com/spdk/spdk/tree/master/lib/ftl)" as follows:
 ```
 lib/ftl
 ├── ftl_band.c
@@ -85,22 +85,22 @@ lib/ftl
     └── ftl_mempool.h
 ```
 
-Note: any SPDK applications (e.g., vhost, nvmf_tgt, iscsi_tht) can use CSAL to construct a block-level cache for storage acceleration. In the following case, we will use vhost as an example that is the same as our EuroSys paper.
+Note: any SPDK application (e.g., vhost, nvmf_tgt, iscsi_tht) can use CSAL to construct a block-level cache for storage acceleration. In the following case, we will use vhost as an example that is the same as our EuroSys paper.
 
 ## 3. Kick-the-tire Instructions (10+ minutes)
 ### Overview
 The figure describes the high level architecture of what we will build in this guide. First, we construct a CSAL block device (the red part in figure). Second, we start a vhost target and assign this CSAL block device to vhost (the yellow part in figure). Third, we launch a virtual machine (the blue part in figure) that communicates with the vhost target. Finally, you will get a virtual disk in the VM. The virtual disk is accelerated by CSAL.
 
 ### Prerequisites
-#### Hardware Requirement
+#### Hardware Requirements
 - Storage:
   - NVMe QLC SSD
   - NVMe Optane SSD or SLC SSD with VSS capability (4K + 64B format)
 - Memory: at least 30GB DRAM.
 
- QLC SSD will be used as capacity device (denoted as /dev/nvme0n1 in the following instructions) while Optane/SSD SSD (denoted as /dev/nvme1n1 in the following instructions) will be used as cache device.
+ QLC SSD will be used as capacity device (denoted as /dev/nvme0n1 in the following instructions) while Optane/SLC SSD (denoted as /dev/nvme1n1 in the following instructions) will be used as cache device.
   
-#### Prepare SPDK
+#### Preparing SPDK
 1. Get the source code:
    ```bash
    git clone https://github.com/spdk/spdk --recursive
@@ -111,7 +111,7 @@ The figure describes the high level architecture of what we will build in this g
    git submodule update --init
    ```
 
-2. Compile SPDK
+2. Compile SPDK:
    ```bash
    sudo scripts/pkgdep.sh # install prerequisites
    ./configure
@@ -120,7 +120,7 @@ The figure describes the high level architecture of what we will build in this g
 
 3. Set SSD (for both cache device and capacity device) sector size to 4KB with nvme-cli, for example:
    ```bash
-   # install nvme cli
+   # install nvme-cli
    yum install nvme-cli -y
    nvme format /dev/nvme0n1 -b 4096 --force
    nvme format /dev/nvme1n1 -b 4096 --force
@@ -134,10 +134,10 @@ The figure describes the high level architecture of what we will build in this g
 
 5. VSS emulation (optional for Non-VSS SSD).
    
-   If you do not have fast NVMe device that supports VSS, you can use CSAL VSS software emulation to run performance testing and study. Note emulation does not promise power safety and crash consistency To build CSAL with VSS software emulation support, please modify the below Makefile:
+   If you do not have fast NVMe device that supports VSS, you can use CSAL VSS software emulation to run performance testing and study. Note that emulation does not promise power safety and crash consistency To build CSAL with VSS software emulation support, please modify the below Makefile:
    ```bash
    vim lib/ftl/Makefile
-   # find below defination SPDK_FTL_VSS_EMU
+   # find below definition SPDK_FTL_VSS_EMU
    ifdef SPDK_FTL_VSS_EMU
    CFLAGS += -DSPDK_FTL_VSS_EMU
    endif
@@ -154,7 +154,7 @@ The figure describes the high level architecture of what we will build in this g
    sudo HUGEMEM=16384 ./scripts/setup.sh # set up 16GB huge pages
    ```
 
-#### Build SPDK Application with CSAL
+#### Building the SPDK Application with CSAL
 1. Start SPDK vhost target
    ```bash
    # start vhost on CPU 0 and 1 (cpumask 0x3)
@@ -163,7 +163,7 @@ The figure describes the high level architecture of what we will build in this g
 
 2. Construct CSAL block device
    ```bash
-   # Before staring the following instructions, you should get
+   # Before starting the following instructions, you should get
    # your NVMe devices' BDF number.
 
    # construct capacity device NVMe0 with BDF "0000:01:00.0"
@@ -176,10 +176,11 @@ The figure describes the high level architecture of what we will build in this g
 
 3. Construct vhost-blk controller with CSAL block device
    ```bash
-   # The following RPC will create a vhost-blk device exposing FTL0 device. 
-   # The device will be accessible to QEMU via /var/tmp/vhost.1. All the I/O
-   # polling will be pinned to the least occupied CPU core within given
-   # cpumask - in this case always CPU 0. 
+   # The following RPC command creates a vhost-blk device that 
+   # exposes the FTL0 device. The device will be accessible to QEMU 
+   # via /var/tmp/vhost.1. All the I/O polling will be pinned to the 
+   # least occupied CPU core within the given cpumask; in this case, 
+   # always CPU 0.
    scripts/rpc.py vhost_create_blk_controller --cpumask 0x1 vhost.1 FTL0
    ```
 
@@ -225,10 +226,11 @@ git clone https://github.com/yanbozyb/AE_CSAL.git
 cd AE_CSAL
 sh precondition/start.sh
 ```
-This will take much long time to precondition virtual disks by sequentially writing whole space twice followed by randomly writes to whole space area.
+This will take a long time to precondition virtual disks by sequentially writing to the whole space twice, followed by random writes across the entire space.
 
 #### Preparing Partitions
-After preconditioning, we should prepare partitions. In our paper's experiments, we construct 8 VMs, each is assigned a partition of CSAL device. To simplify experiments in Artifact Evaluation, we encourage users to split the virtual disk into multiple partitions and then launch multiple FIO jobs to generate workloads on each partition. In this case, each job can be considered as a tenant (i.e., VM). In the following instructions, we split whole disk into 8 partitions by specifying offset and size for each job in FIO configurations. The example is shown as follows:
+After preconditioning, we should prepare partitions. In our paper's experiments, we construct 8 VMs, each is assigned a partition of CSAL device. To simplify experiments in Artifact Evaluation, we encourage users to split the virtual disk into multiple partitions and then launch multiple FIO jobs to generate workloads on each partition. In this case, each job can be considered as a tenant (i.e., VM). 
+In the following instructions, we divide the entire disk into 8 partitions by specifying the offset and size for each job in the FIO configurations. The example is shown as follows:
 ```bash
 [job1]
 name=job1
@@ -304,7 +306,7 @@ sh /raw/mixed/start.sh
 The results will be generated in "raw/mixed/results" folder. The read and write results are separate in the outputs of each case.
 
 ### Reproducing Figures 13 (20+ minues)
-To reproduce **figure 13**, we should run the same workloads as figure 11. For measuring write amplification factor (WAF), we should run cases one by one.
+To reproduce figure 13, we need to run the same workloads as those in figure 11. To measure the write amplification factor (WAF), we should execute the following test cases and calculate WAF one by one.
 ```bash
 # for 4KB skewed workloads (i.e., Figure 11(a))
 fio raw/skewed/fio_4k_zipf0.8.job
@@ -314,24 +316,24 @@ fio raw/skewed/fio_4k_zipf1.2.job
 fio raw/skewed/fio_64k_zipf0.8.job
 fio raw/skewed/fio_64k_zipf1.2.job
 ```
-We calculate write amplification factor (WAF) by dividing the total size of NAND writes by the total logical writes. Before and after each test, you can use nvme cli tool to get the current NAND writes of QLC drive (**in HOST instead of VM!!**). FIO will report total logical writes when finishing the tests. The example that shows how to use nvme cli tool to get NAND writes is as follows:
+The write amplification factor (WAF) is calculated by dividing the total size of NAND writes by the total size of logical writes. Before and after each test, you can use the nvme-cli tool to retrieve the current NAND writes of the QLC drive (ensure you do this in the HOST, not the VM). Upon completion, FIO will report the total logical writes. Here's how to use the nvme-cli tool to retrieve NAND writes:
 ```bash
 nvme smart-log /dev/nvme0n1
 ```
 In the output, you can find current data read and written on NAND media from "data_units_read" and "data_units_written" fields.
 
 ### Reproducing Figures 14 (5+ minutes)
-To reproduce **figure 14**, we should run 4k random writes workloads as follows.
+To reproduce figure 14, execute the 4k random writes workload as follows:
 ```bash
 fio raw/uniform/fio_rnd_4k.job
 ```
-During the test, spdk iostat tool can be used to get CASL backend traffic for each block device (**in HOST instead of VM!!**).
+During the test, you can use the spdk iostat tool to monitor the CASL backend traffic for each block device (ensure this is done in the HOST, not the VM).
 ```bash
 cd ~/path/to/spdk
 yum install python3 -y
 scripts/spdk_iostat -d -m -i 1 -t 3000
 ```
 ## 5. Others
-Now we have implemented a new approach without relying on VSS capability for cache layer. In later release, you can construct CSAL on devices with VSS.
+We have now implemented a new approach that doesn't rely on the VSS capability for the cache layer. In subsequent releases, you'll be able to construct CSAL on devices without VSS.
 
 For any other help, please contact Yanbo Zhou (yanbo.zyb@outlook.com).
