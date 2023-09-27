@@ -6,7 +6,84 @@ This Artifact Evaluation is for "Sonic: the Next-Gen Local Disks for the Cloud" 
 If you have any questions, please contact us via email or HotCRP.
 
 ## 2. Access Source Code
-The source code of CSAL is accepted by SPDK community ([BSD 3-clause license](https://opensource.org/license/bsd-3-clause/)) and merged into SPDK main branch at [Github](https://github.com/spdk/spdk). In SPDK, CSAL is implemented as a [Flash Translation Layer](https://spdk.io/doc/ftl.html) module. You can find CSAL implementation under the folder "[spdk/lib/ftl](https://github.com/spdk/spdk/tree/master/lib/ftl)".
+The source code of CSAL is accepted by SPDK community ([BSD 3-clause license](https://opensource.org/license/bsd-3-clause/)) and merged into SPDK main branch at [Github](https://github.com/spdk/spdk). In SPDK, CSAL is implemented as a [Flash Translation Layer](https://spdk.io/doc/ftl.html) module. You can find CSAL implementation under the folder "[spdk/lib/ftl](https://github.com/spdk/spdk/tree/master/lib/ftl)" as follows:
+```
+ftl
+├── ftl_band.c
+├── ftl_band.h
+├── ftl_band_ops.c
+├── ftl_core.c
+├── ftl_core.h
+├── ftl_debug.c
+├── ftl_debug.h
+├── ftl_init.c
+├── ftl_internal.h
+├── ftl_io.c
+├── ftl_io.h
+├── ftl_l2p.c
+├── ftl_l2p_cache.c
+├── ftl_l2p_cache.h
+├── ftl_l2p_flat.c
+├── ftl_l2p_flat.h
+├── ftl_l2p.h
+├── ftl_layout.c
+├── ftl_layout.h
+├── ftl_nv_cache.c
+├── ftl_nv_cache.h
+├── ftl_nv_cache_io.h
+├── ftl_p2l.c
+├── ftl_reloc.c
+├── ftl_rq.c
+├── ftl_sb.c
+├── ftl_sb_common.h
+├── ftl_sb_current.h
+├── ftl_sb.h
+├── ftl_trace.c
+├── ftl_trace.h
+├── ftl_utils.h
+├── ftl_writer.c
+├── ftl_writer.h
+├── Makefile
+├── mngt
+│   ├── ftl_mngt_band.c
+│   ├── ftl_mngt_bdev.c
+│   ├── ftl_mngt.c
+│   ├── ftl_mngt.h
+│   ├── ftl_mngt_ioch.c
+│   ├── ftl_mngt_l2p.c
+│   ├── ftl_mngt_md.c
+│   ├── ftl_mngt_misc.c
+│   ├── ftl_mngt_p2l.c
+│   ├── ftl_mngt_recovery.c
+│   ├── ftl_mngt_self_test.c
+│   ├── ftl_mngt_shutdown.c
+│   ├── ftl_mngt_startup.c
+│   ├── ftl_mngt_steps.h
+│   └── ftl_mngt_upgrade.c
+├── spdk_ftl.map
+├── upgrade
+│   ├── ftl_band_upgrade.c
+│   ├── ftl_chunk_upgrade.c
+│   ├── ftl_layout_upgrade.c
+│   ├── ftl_layout_upgrade.h
+│   ├── ftl_p2l_upgrade.c
+│   ├── ftl_sb_prev.h
+│   ├── ftl_sb_upgrade.c
+│   └── ftl_sb_upgrade.h
+└── utils
+    ├── ftl_addr_utils.h
+    ├── ftl_bitmap.c
+    ├── ftl_bitmap.h
+    ├── ftl_conf.c
+    ├── ftl_conf.h
+    ├── ftl_defs.h
+    ├── ftl_df.h
+    ├── ftl_log.h
+    ├── ftl_md.c
+    ├── ftl_md.h
+    ├── ftl_mempool.c
+    └── ftl_mempool.h
+```
 
 Note: any SPDK applications (e.g., vhost, nvmf_tgt, iscsi_tht) can use CSAL to construct a block-level cache for storage acceleration. In the following case, we will use vhost as an example that is the same as our EuroSys paper.
 
@@ -132,8 +209,8 @@ The figure describes the high level architecture of what we will build in this g
    -daemonize -pidfile /var/run/qemu_0 \
    -object memory-backend-file,id=mem,size=8G,mem-path=/dev/hugepages,share=on \
    -numa node,memdev=mem \ 
-   -chardev socket,id=char0,path=/mnt/nvme6n1/wayne/csal/vhost.1 \
-   -device vhost-user-blk-pci,num-queues=16,id=blk0,chardev=char0 \
+   -chardev socket,id=char0,path=/var/tmp/vhost.1 \
+   -device vhost-user-blk-pci,num-queues=8,id=blk0,chardev=char0 \
    ```
    notes:
       - log into your VM via "ssh root@localhost -p 32001"
