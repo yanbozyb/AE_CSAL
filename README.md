@@ -57,9 +57,7 @@ The figure describes the high level architecture of what we will build in this g
 
 5. VSS emulation (optional for Non-VSS SSD).
    
-   If you do not have fast NVMe device that supports VSS, you can use CSAL VSS software emulation to run performance testing and study. Note emulation does not promise power safety and crash consistency. We already have solution to support non-VSS NVMe as cache device. Please stay tuned.
-
-   To build CSAL with VSS software emulation support, please modify the below Makefile.
+   If you do not have fast NVMe device that supports VSS, you can use CSAL VSS software emulation to run performance testing and study. Note emulation does not promise power safety and crash consistency To build CSAL with VSS software emulation support, please modify the below Makefile:
    ```bash
    vim lib/ftl/Makefile
    # find below defination SPDK_FTL_VSS_EMU
@@ -128,7 +126,7 @@ The figure describes the high level architecture of what we will build in this g
 5. Launch a virtual machine using QEMU
    ```bash
    qemu-system-x86_64 -m 8192 -smp 64 -cpu host -enable-kvm \
-   -hda /mnt/nvme6n1/fedora37.qcow2 \ 
+   -hda /path/to/centos.qcow2 \ 
    -netdev user,id=net0,hostfwd=tcp::32001-:22 \
    -device e1000,netdev=net0 -display none -vga std \
    -daemonize -pidfile /var/run/qemu_0 \
@@ -139,7 +137,7 @@ The figure describes the high level architecture of what we will build in this g
    ```
    notes:
       - log into your VM via "ssh root@localhost -p 32001"
-      - please change -hda qemu img to your path
+      - please change "/path/to/centos.qcow2" to your image path
       - please change path to the actual vhost path from vhost app log
 
 ## 4. Evaluation Instructions (18+ hours)
