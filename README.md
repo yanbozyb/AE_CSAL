@@ -150,18 +150,27 @@ sh precondition/start.sh
 This will take much long time to precondition virtual disks by sequentially writing whole space twice followed by randomly writes to whole space area.
 
 #### Preparing Partitions
-After preconditioning, we should prepare partitions. In our experiments, we construct 8 VMs, each is assigned a partition of CSAL device. To simplify experiments in Artifact Evaluation, we encourage users to split the virtual disk into multiple partitions (e.g., 8 partitions) and then launch multiple FIO jobs to generate workloads on each partition. In this case, each job can be considered as a tenant (i.e., VM). The following script splits "/dev/nvme3n1" into 8 partitions (i.e., nvme3n1p1, nvme3n1p2, nvme3n1p3, ...).
+After preconditioning, we should prepare partitions. In our experiments, we construct 8 VMs, each is assigned a partition of CSAL device. To simplify experiments in Artifact Evaluation, we encourage users to split the virtual disk into multiple partitions (e.g., 8 partitions) and then launch multiple FIO jobs to generate workloads on each partition. In this case, each job can be considered as a tenant (i.e., VM). The following script splits "/dev/nvme3n1" into 8 partitions.
 ```bash
 sh autopartition.sh
+
+          Start          End    Size  Type            Name
+ 1          256    390625023    1.5T  Microsoft basic primary
+ 2    390625024    781250047    1.5T  Microsoft basic primary
+ 3    781250048   1171875071    1.5T  Microsoft basic primary
+ 4   1171875072   1562500095    1.5T  Microsoft basic primary
+ 5   1562500096   1953125119    1.5T  Microsoft basic primary
+ 6   1953125120   2343749887    1.5T  Microsoft basic primary
+ 7   2343749888   2734374911    1.5T  Microsoft basic primary
+ 8   2734374912   3124999935    1.5T  Microsoft basic primary
 ```
 
-### Reproducing Figures 10, 11, 12 (3+ hours)
+### Reproducing Figures 10, 11, 12 (2+ hours)
 First, to reproduce **figure 10**, you could execute the following instructions:
 ```bash
-sh precondition/start.sh
+sh raw/uniform/start.sh
 ```
-
-The output of each case should be as follows. You can find write throughput is xxx MB/s (all partitions included) in this example.
+The results will be generated in "raw/uniform/results_rnd_workloads" and "raw/uniform/results_rnd_workloads" folders. The output of each case should be as follows. You can find write throughput is xxx MB/s (all partitions included) in this example.
 ```bash
 fio results
 ```

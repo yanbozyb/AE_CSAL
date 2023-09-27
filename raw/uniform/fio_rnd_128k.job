@@ -5,40 +5,48 @@ iodepth=128
 rw=randwrite
 bs=128k
 numjobs=1
-size=100%
 group_reporting=1
 time_based=1
 ramp_time=120s
 runtime=180s
+filename=/dev/nvme3n1
 
 [job1]
 name=job1
-filename=/dev/nvme3n1p1
+offset=0G
+size=1598G
 
 [job2]
 name=job2
-filename=/dev/nvme3n1p2
+offset=1598G
+size=1598G
 
 [job3]
 name=job3
-filename=/dev/nvme3n1p3
+offset=3196G
+size=1598G
 
 [job4]
 name=job4
-filename=/dev/nvme3n1p4
+offset=4794G
+size=1598G
 
 [job5]
 name=job5
-filename=/dev/nvme3n1p5
+offset=6392G
+size=1598G
 
 [job6]
 name=job6
-filename=/dev/nvme3n1p6
+offset=7990G
+size=1598G
 
 [job7]
 name=job7
-filename=/dev/nvme3n1p7
+offset=9588G
+size=1598G
 
 [job8]
 name=job8
-filename=/dev/nvme3n1p8
+offset=11186G
+size=1598G
