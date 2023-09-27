@@ -174,24 +174,7 @@ The figure describes the high level architecture of what we will build in this g
    scripts/rpc.py bdev_ftl_create -b FTL0 -d nvme0n1 -c nvme1n1
    ```
 
-3. Use RAM disks (Under Contruction, Please stay tuned for this part)
-   ```bash
-   # You can use RAM disks to constuct CSAL if you do not have required
-   # hardware. However, RAM disks are only used for guiding how to build
-   # CSAL, they can not reflect real behavior of CSAL.
-
-   #make sure enough huge page is reserved for devices
-   echo 32768 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
-
-   # construct capacity device Malloc0 with RAM disk
-   scripts/rpc.py bdev_malloc_create -b Malloc0 20480 4096
-   # construct cache device Malloc1 with RAM disk
-   scripts/rpc.py bdev_malloc_create -b Malloc1 5120 4096 -m 64
-   # construct CSAL device FTL0 on top of Malloc0 and Malloc1
-   scripts/rpc.py bdev_ftl_create -b FTL0 -d Malloc0 -c Malloc1
-   ```
-
-4. Construct vhost-blk controller with CSAL block device
+3. Construct vhost-blk controller with CSAL block device
    ```bash
    # The following RPC will create a vhost-blk device exposing FTL0 device. 
    # The device will be accessible to QEMU via /var/tmp/vhost.1. All the I/O
@@ -200,7 +183,7 @@ The figure describes the high level architecture of what we will build in this g
    scripts/rpc.py vhost_create_blk_controller --cpumask 0x1 vhost.1 FTL0
    ```
 
-5. Launch a virtual machine using QEMU
+4. Launch a virtual machine using QEMU
    ```bash
    qemu-system-x86_64 -m 8192 -smp 64 -cpu host -enable-kvm \
    -hda /path/to/centos.qcow2 \ 
