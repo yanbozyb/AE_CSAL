@@ -151,9 +151,10 @@ The figure above describes the high level architecture of what we will build in 
    #endif
    ```
 
-6. Configure huge pages
+6. Configure huge pages (reserve 20GB DRAM)  
+   We reserve 20GB DRAM as huge pages: 16GB+ for VM and 2GB+ for CSAL (others for SPDK runtime).
    ```bash
-   sudo HUGEMEM=16384 ./scripts/setup.sh # set up 16GB huge pages
+   sudo HUGEMEM=20480 ./scripts/setup.sh
    ```
 
 #### Building the SPDK Application with CSAL
@@ -163,7 +164,7 @@ The figure above describes the high level architecture of what we will build in 
    sudo build/bin/vhost -S /var/tmp -m 0x3
    ```
 
-2. Construct CSAL block device
+2. Construct CSAL block device (use 2+ GB Huge Pages)
    ```bash
    # Before starting the following instructions, you should get
    # your NVMe devices' BDF number.
@@ -187,14 +188,14 @@ The figure above describes the high level architecture of what we will build in 
    scripts/rpc.py vhost_create_blk_controller --cpumask 0x1 vhost.1 FTL0
    ```
 
-4. Launch a virtual machine using QEMU
+4. Launch a virtual machine using QEMU (use 16GB+ Huge Pages)
    ```bash
    qemu-system-x86_64 -m 16384 -smp 64 -cpu host -enable-kvm \
    -hda /path/to/centos.qcow2 \ 
    -netdev user,id=net0,hostfwd=tcp::32001-:22 \
    -device e1000,netdev=net0 -display none -vga std \
    -daemonize -pidfile /var/run/qemu_0 \
-   -object memory-backend-file,id=mem,size=8G,mem-path=/dev/hugepages,share=on \
+   -object memory-backend-file,id=mem,size=16G,mem-path=/dev/hugepages,share=on \
    -numa node,memdev=mem \ 
    -chardev socket,id=char0,path=/var/tmp/vhost.1 \
    -device vhost-user-blk-pci,num-queues=8,id=blk0,chardev=char0 \
