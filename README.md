@@ -164,7 +164,7 @@ The figure above describes the high level architecture of what we will build in 
    sudo build/bin/vhost -S /var/tmp -m 0x3
    ```
 
-2. Construct CSAL block device (use 2+ GB Huge Pages)
+2. Construct CSAL block device (use 2GB+ Huge Pages)
    ```bash
    # Before starting the following instructions, you should get
    # your NVMe devices' BDF number.
