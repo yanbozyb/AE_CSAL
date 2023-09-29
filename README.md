@@ -4,8 +4,6 @@
 This Artifact Evaluation pertains to "Sonic: the Next-Gen Local Disks for the Cloud" accepted by EuroSys 2024. The goal of this Artifact Evaluation is to help you 1) get project source code; 2) rebuild the project from scratch; 3) reproduce the main experimental results of the paper.
 
 Note: for double-blind policy, we anonymize the name of our local disks product as SONIC in the paper. In camera-ready version, we will change it to CSAL so in the following context, we will use CSAL instead of SONIC.
-	
-If you have any questions, please contact us via HotCRP or email (yanbo.zyb@outlook.com).
 
 ## 2. Access Source Code
 The source code of CSAL has been accepted by SPDK community ([BSD 3-clause license](https://opensource.org/license/bsd-3-clause/)) and merged into SPDK main branch at [Github](https://github.com/spdk/spdk). Within SPDK, CSAL is implemented as a module of [Flash Translation Layer](https://spdk.io/doc/ftl.html). You can find CSAL implementation under the folder "[spdk/lib/ftl](https://github.com/spdk/spdk/tree/master/lib/ftl)" as follows:
@@ -230,7 +228,7 @@ To reproduce the same experimental results as ours, please use the following env
   - CPU: 56 vCPU cores
   - Memory: 64GB
 
-***We prepared a Virtual Machine (VM) in our cloud platform. The VM is set up with a CSAL powered virtual disks and equipped all the required hardware. You can start reproducing the performance experiments (only for figures 10, 11, 12) directly without required hardware. Please contact us for VM login in information***
+***We prepared a Virtual Machine (VM) in our cloud platform. The VM is set up with a CSAL powered virtual disks and equipped all the required hardware. You can start reproducing the performance experiments (only for figures 10, 11, 12) directly without required hardware. Please contact us vis HotCRP or email (yanbo.zyb@outlook.com) for VM login in information***
 
 ### Prerequisites (16+ hours)
 #### Preconditioning SSD (16+ hours)
