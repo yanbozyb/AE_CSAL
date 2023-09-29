@@ -209,9 +209,10 @@ The figure above describes the high level architecture of what we will build in 
 5. Check your VM
    After successfully logging into your VM, you can find the virtual block device using "lsblk" command as follows:
    ```bash
-   lsblk
-   vda      100G  disk  /
-   vdb      15.8T disk
+   NAME    MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+   vda     253:0    0   40G  0 disk
+   └─vda1  253:1    0   40G  0 part /
+   vdb     259:3    0 12.5T  0 disk
    ``` 
    Note: vda is system disk; the subsequent disks are the data disks (i.e., vdb).
    
@@ -349,7 +350,11 @@ cd ~/path/to/spdk
 yum install python3 -y
 scripts/spdk_iostat -d -m -i 1 -t 3000
 ```
-## 5. Others
+
+## 5. License
+CSAL follows the same license with SPDK ([BSD 3-clause license](https://opensource.org/license/bsd-3-clause/)). You can use CSAL to make comparison under BSD 3-clause license.
+
+## 6. Others
 We have now implemented a new approach that doesn't rely on the VSS capability for the cache layer. In subsequent releases, you'll be able to construct CSAL on devices without VSS.
 
 For any other help, please contact Yanbo Zhou (yanbo.zyb@outlook.com).
