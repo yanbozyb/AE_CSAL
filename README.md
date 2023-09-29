@@ -91,7 +91,9 @@ Note: any SPDK application (e.g., vhost, nvmf_tgt, iscsi_tht) can use CSAL to co
 
 ## 3. Kick-the-tire Instructions (10+ minutes)
 ### Overview
-The figure describes the high level architecture of what we will build in this guide. First, we construct a CSAL block device (the red part in figure). Second, we start a vhost target and assign this CSAL block device to vhost (the yellow part in figure). Third, we launch a virtual machine (the blue part in figure) that communicates with the vhost target. Finally, you will get a virtual disk in the VM. The virtual disk is accelerated by CSAL.
+![Figure](/others/figure.png)
+
+The figure above describes the high level architecture of what we will build in this guide. First, we construct a CSAL block device (the green part in the figure). Second, we start a vhost target and assign this CSAL block device to vhost (the yellow part in figure). Third, we launch a virtual machine (the blue part in figure) that communicates with the vhost target. Finally, you will get a virtual disk in the VM. The virtual disk is accelerated by CSAL.
 
 ### Prerequisites
 #### Hardware Requirements
@@ -176,7 +178,8 @@ The figure describes the high level architecture of what we will build in this g
    scripts/rpc.py bdev_ftl_create -b FTL0 -d nvme0n1 -c nvme1n1
    ```
 
-3. Construct vhost-blk controller with CSAL block device
+3. Construct vhost-blk controller with CSAL block device  
+   To simplify the construction process, we suggest you use vhost-blk to construct VM. Here is an example of how to construct vhost-blk controller and device.
    ```bash
    # The following RPC command creates a vhost-blk device that 
    # exposes the FTL0 device. The device will be accessible to QEMU 
@@ -198,11 +201,20 @@ The figure describes the high level architecture of what we will build in this g
    -chardev socket,id=char0,path=/var/tmp/vhost.1 \
    -device vhost-user-blk-pci,num-queues=8,id=blk0,chardev=char0 \
    ```
-   notes:
+   Notes:
       - log into your VM via "ssh root@localhost -p 32001"
       - please change "/path/to/centos.qcow2" to your image path
       - please change path to the actual vhost path from vhost app log
 
+5. Check your VM
+   After successfully logging into your VM, you can find the virtual block device using "lsblk" command as follows:
+   ```bash
+   lsblk
+   vda      100G  disk  /
+   vdb      15.8T disk
+   ``` 
+   Note: vda is system disk; the subsequent disks are the data disks (i.e., vdb).
+   
 ## 4. Evaluation Instructions (18+ hours)
 ### Experimental Environment
 To reproduce the same experimental results as ours, please use the following environment as far as possible.
@@ -229,6 +241,8 @@ cd AE_CSAL
 sh precondition/start.sh
 ```
 This will take a long time to precondition virtual disks by sequentially writing to the whole space twice, followed by random writes across the entire space.
+
+Note: in the following instructions, we use /dev/nvme0n1 as the example of virtual disk which is the same as our paper's experiments. If you use vhost-blk to construct virtual disks according to the kick-the-tire instructions above, you should change the virtual disk name to /dev/vdb.
 
 #### Preparing Partitions
 After preconditioning, we should prepare partitions. In our paper's experiments, we construct 8 VMs, each is assigned a partition of CSAL device. To simplify experiments in Artifact Evaluation, we encourage users to split the virtual disk into multiple partitions and then launch multiple FIO jobs to generate workloads on each partition. In this case, each job can be considered as a tenant (i.e., VM). 
