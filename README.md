@@ -205,7 +205,7 @@ The figure above describes the high level architecture of what we will build in 
       - please change "/path/to/centos.qcow2" to your image path
       - please change path to the actual vhost path from vhost app log
 
-5. Check your VM
+5. Check your VM  
    After successfully logging into your VM, you can find the virtual block device using "lsblk" command as follows:
    ```bash
    NAME    MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
@@ -213,7 +213,7 @@ The figure above describes the high level architecture of what we will build in 
    └─vda1  253:1    0   40G  0 part /
    vdb     259:3    0 12.5T  0 disk
    ``` 
-   Note: vda is system disk; the subsequent disks are the data disks (i.e., vdb).
+   Note: vda is system disk; the subsequent disks are the data disks (e.g., vdb).
    
 ## 4. Evaluation Instructions (18+ hours)
 ### Experimental Environment
