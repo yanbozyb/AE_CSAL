@@ -148,13 +148,13 @@ The figure above describes the high level architecture of what we will build in 
    CFLAGS += -DSPDK_FTL_VSS_EMU
    endif
    ```
-   Enable SPDK_FTL_VSS_EMU macro by commenting out the ifdef as below:
+   Enable SPDK_FTL_VSS_EMU macro by commenting out the "ifdef" and "endif" as below and then recompile:
    ```bash
    #ifdef SPDK_FTL_VSS_EMU
    CFLAGS += -DSPDK_FTL_VSS_EMU
    #endif
 
-   Then recompile:
+   # recompile:
    $ make
    ```
 
