@@ -153,6 +153,9 @@ The figure above describes the high level architecture of what we will build in 
    #ifdef SPDK_FTL_VSS_EMU
    CFLAGS += -DSPDK_FTL_VSS_EMU
    #endif
+
+   Then recompile:
+   $ make
    ```
 
 6. Configure huge pages (reserve 20GB DRAM)  
