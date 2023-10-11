@@ -94,7 +94,11 @@ Note: any SPDK application (e.g., vhost, nvmf_tgt, iscsi_tht) can use CSAL to co
 The figure above describes the high level architecture of what we will build in this guide. First, we construct a CSAL block device (the green part in the figure). Second, we start a vhost target and assign this CSAL block device to vhost (the yellow part in figure). Third, we launch a virtual machine (the blue part in figure) that communicates with the vhost target. Finally, you will get a virtual disk in the VM. The virtual disk is accelerated by CSAL.
 
 ### Prerequisites
-#### Hardware Requirements
+#### Environment Check-List
+- OS: Linux kernel >= 3.10.0
+- Compilation:
+  - GCC 4.9.4
+  - Python 3.12.0
 - Storage:
   - NVMe QLC SSD
   - NVMe Optane SSD or SLC SSD with VSS capability (4K + 64B format)
@@ -264,14 +268,14 @@ The figure above describes the high level architecture of what we will build in 
 To reproduce the same experimental results as ours, please use the following environment as far as possible.
 - OS: Linux CentOS Kernel 4.19
 - CPU: 2x Intel 8369B @ 2.90GHz
-- Memory: 128GB DDR4 Memory
+- Memory: 512GB DDR4 Memory
 - NVMe SSDs:
   - 1x Intel P5800X 800GB NVMe SSD (for cache)
-  - 1x Intel/Solidigm P5316 15.35TB NVMe SSD
+  - 1x Intel/Solidigm P5316 15.36TB NVMe SSD
 - VM:
   - OS: Linux CentOS Kernel 3.10.0
   - CPU: 56 vCPU cores
-  - Memory: 64GB
+  - Memory: 216GB
 
 ***We prepared a Virtual Machine (VM) in our cloud platform. The VM is set up with a CSAL powered virtual disks and equipped all the required hardware. You can start reproducing the performance experiments (only for figures 10, 11, 12) directly without required hardware. Please contact us vis HotCRP or email (yanbo.zyb@outlook.com) for VM login in information***
 
