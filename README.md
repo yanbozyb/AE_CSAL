@@ -266,6 +266,41 @@ The figure above describes the high level architecture of what we will build in 
    ``` 
    Note: vda is system disk; the subsequent disks are the data disks (e.g., vdb).
    
+#### Building fio_plugin with CSAL (Optional)
+We provide another alternative to evaluate CSAL in host server with fio_plugin tool. 
+The following instructions introduce how to build the fio_plugin tool with CSAL.
+
+1. Compile fio tool
+   ```bash
+   $ git clone https://github.com/axboe/fio
+   $ cd fio
+   $ make
+   ```
+
+2. Recompile SPDK
+   ```bash
+   $ cd spdk
+   $ ./configure --with-fio=/root/fio # change the path to your fio folder
+   $ make
+   ```
+
+3. Get fio configuration file
+   ```bash
+   $ git clone https://github.com/yanbozyb/AE_CSAL.git
+   ```
+   Note that the csal.json is the SPDK bdev construction description file for fio_plugin tool. The SPDK engine inside fio_plugin will
+   use this description to construct block devices. Now we use it to construct CSAL block device (FTL0) with nvme0n1 (0000:00:05.0)
+   and nvme1n1 (0000:00:06.0). You can modify csal.json for whatever block device you want to construct.
+
+4. Launch fio_plugin tool
+   ```bash
+   # LD_PRELOAD=<path to spdk>/build/fio/spdk_bdev <path to fio>/fio <path to AE_CSAL>/fiotest.job
+   $ LD_PRELOAD=/root/spdk/build/fio/spdk_bdev /root/fio/fio /root/AE_CSAL/fiotest.job
+   ```
+   Note that, in fiotest.job, please modify SPDK path of "ioengine" and csal.json path of "spdk_json_conf" to your own addresses.
+
+Now, you already successfully launch fio_plugin tool with CSAL block device. Then, you can modify general parameters of fio to evaluate any workloads you want (e.g., the following workloads in experiments).
+
 ## 4. Evaluation Instructions (18+ hours)
 ### Experimental Environment
 To reproduce the same experimental results as ours, please use the following environment as far as possible.
