@@ -124,7 +124,7 @@ The figure above describes the high level architecture of what we will build in 
    $ make
    ```
 
-3. Format SSD
+3. Format SSD  
    For both cache device and capacity device, set sector size to 4KB with nvme-cli tool:
    ```bash
    # install nvme-cli
@@ -139,7 +139,7 @@ The figure above describes the high level architecture of what we will build in 
    ```
    The SSD will be formatted into the layout with 4KB data sector followed by 64B metadata area.  
 
-5. Enable VSS emulation (optional for Non-VSS SSD):
+5. Enable VSS emulation (optional for Non-VSS SSD):  
    If you do not have fast NVMe device that supports VSS, you can use CSAL VSS software emulation to run performance testing and study. Note that emulation does not promise power safety and crash consistency To build CSAL with VSS software emulation support, please modify the below Makefile:
    ```bash
    $ vim lib/ftl/Makefile
