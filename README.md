@@ -107,7 +107,7 @@ The figure above describes the high level architecture of what we will build in 
  QLC SSD will be used as capacity device (denoted as /dev/nvme0n1 in the following instructions) while Optane/SLC SSD (denoted as /dev/nvme1n1 in the following instructions) will be used as cache device.
   
 #### Preparing SPDK
-1. Get the source code:
+1. Get the source code
    ```bash
    $ git clone https://github.com/spdk/spdk
    $ cd spdk
@@ -117,14 +117,15 @@ The figure above describes the high level architecture of what we will build in 
    $ git submodule update --init
    ```
 
-2. Compile SPDK:
+2. Compile SPDK
    ```bash
    $ sudo scripts/pkgdep.sh # install prerequisites
    $ ./configure
    $ make
    ```
 
-3. Set SSD (for both cache device and capacity device) sector size to 4KB with nvme-cli, for example:
+3. Format SSD
+   For both cache device and capacity device, set sector size to 4KB with nvme-cli tool:
    ```bash
    # install nvme-cli
    $ yum install nvme-cli -y
@@ -132,14 +133,13 @@ The figure above describes the high level architecture of what we will build in 
    $ nvme format /dev/nvme1n1 -b 4096 --force
    ```
 
-4. Enable VSS (4KB + 64B) for cache device as follows:
+4. Enable VSS for cache device
    ```bash
    $ nvme format /dev/nvme2 --namespace-id=1 --lbaf=4 --force --reset
    ```
-   The SSD will be formatted into the layout with 4KB data sector followed by 64B metadata area. 
+   The SSD will be formatted into the layout with 4KB data sector followed by 64B metadata area.  
 
-5. VSS emulation (optional for Non-VSS SSD).
-   
+5. Enable VSS emulation (optional for Non-VSS SSD):
    If you do not have fast NVMe device that supports VSS, you can use CSAL VSS software emulation to run performance testing and study. Note that emulation does not promise power safety and crash consistency To build CSAL with VSS software emulation support, please modify the below Makefile:
    ```bash
    $ vim lib/ftl/Makefile
@@ -158,8 +158,8 @@ The figure above describes the high level architecture of what we will build in 
    $ make
    ```
 
-6. Configure huge pages (reserve 20GB DRAM)  
-   We reserve 20GB DRAM as huge pages: 16GB+ for VM and 2GB+ for CSAL (others for SPDK runtime).
+6. Configure huge pages (reserve 20GB DRAM) 
+   We reserve 20GB DRAM as huge pages: 16GB+ for VM and 2GB+ for CSAL (others for SPDK runtime):
    ```bash
    $ sudo HUGEMEM=20480 ./scripts/setup.sh
    ```
