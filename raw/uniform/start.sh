@@ -1,5 +1,10 @@
 MAIN_PATH="/root/AE_CSAL/"
 
+# precondition again
+fio $MAIN_PATH/precondition/seq.job
+fio $MAIN_PATH/precondition/seq.job
+
+# start
 echo "start seq 4k" > $MAIN_PATH/raw/uniform/status
 fio $MAIN_PATH/raw/uniform/fio_seq_4k.job > $MAIN_PATH/raw/uniform/results_seq_workloads/seq_4k.result
 echo "seq 4k DONE" >> $MAIN_PATH/raw/uniform/status
@@ -24,7 +29,9 @@ echo "start seq 128k" >> $MAIN_PATH/raw/uniform/status
 fio $MAIN_PATH/raw/uniform/fio_seq_128k.job > $MAIN_PATH/raw/uniform/results_seq_workloads/seq_128k.result
 echo "seq 128k DONE" >> $MAIN_PATH/raw/uniform/status
 
-
+# precondition again
+fio $MAIN_PATH/precondition/rnd.job
+fio $MAIN_PATH/precondition/rnd.job
 
 echo "start rnd 4k" >> $MAIN_PATH/raw/uniform/status
 fio $MAIN_PATH/raw/uniform/fio_rnd_4k.job > $MAIN_PATH/raw/uniform/results_rnd_workloads/rnd_4k.result

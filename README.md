@@ -301,7 +301,7 @@ The following instructions introduce how to build the fio_plugin tool with CSAL.
 
 Now, you already successfully launch fio_plugin tool with CSAL block device. Then, you can modify general parameters of fio to evaluate any workloads you want (e.g., the following workloads in experiments).
 
-## 4. Evaluation Instructions (18+ hours)
+## 4. Evaluation Instructions (50+ hours)
 ### Experimental Environment
 To reproduce the same experimental results as ours, please use the following environment as far as possible.
 - OS: Linux CentOS Kernel 4.19
@@ -317,8 +317,8 @@ To reproduce the same experimental results as ours, please use the following env
 
 ***We prepared a Virtual Machine (VM) in our cloud platform. The VM is set up with a CSAL powered virtual disks and equipped all the required hardware. You can start reproducing the performance experiments (only for figures 10, 11, 12) directly without required hardware. Please contact us vis HotCRP or email (yanbo.zyb@outlook.com) for VM login in information***
 
-### Prerequisites (16+ hours)
-#### Preconditioning SSD (16+ hours)
+### Prerequisites (10+ hours)
+#### Preconditioning SSD
 To execute the following instructions, you have to log into the VM first. Before starting evaluation, we should precondition the disks in order to make them enter "stable state". The folder "precondition" in our Artifact Evaluation repository includes a script to precondition disks. You can use this configuration and follow the following instructions.
 ```bash
 $ yum install fio -y
@@ -326,7 +326,7 @@ $ git clone https://github.com/yanbozyb/AE_CSAL.git
 $ cd AE_CSAL
 $ sh precondition/start.sh
 ```
-This will take a long time to precondition virtual disks by sequentially writing to the whole space twice, followed by random writes across the entire space.
+This will take a long time (around 10 hours) to precondition virtual disks by sequentially writing to the whole space twice, followed by random writes across the entire space.
 
 Note: in the following instructions, we use /dev/nvme0n1 as the example of virtual disk which is the same as our paper's experiments. If you use vhost-blk to construct virtual disks according to the kick-the-tire instructions above, you should change the virtual disk name to /dev/vdb.
 
@@ -347,8 +347,8 @@ size=1598G
 ...
 ```
 
-### Reproducing Figures 10, 11, 12 (90+ minutes)
-First, to reproduce **figure 10**, you could execute the following instructions (60+ minutes):
+### Reproducing Figures 10, 11, 12 (40+ hours)
+First, to reproduce **figure 10**, you could execute the following instructions (20+ hours):
 ```bash
 $ sh raw/uniform/start.sh
 ```
@@ -395,13 +395,13 @@ Disk stats (read/write):
   nvme3n1: ios=81/171393678, merge=0/0, ticks=0/40309547, in_queue=40309547, util=100.00%
 ```
 
-Second, to reproduce **figure 11**, you could execute the following instructions (20+ minutes):
+Second, to reproduce **figure 11**, you could execute the following instructions (10+ hours):
 ```bash
 $ sh raw/skewed/start.sh
 ```
 The results will be generated in "raw/skewed/results" folder.
 
-Third, to reproduce **figure 12**, you could execute the following instructions (10+ minutes):
+Third, to reproduce **figure 12**, you could execute the following instructions (10+ hours):
 ```bash
 $ sh /raw/mixed/start.sh
 ```
